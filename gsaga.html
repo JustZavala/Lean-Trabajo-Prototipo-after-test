@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Timón - Prototipo</title>
+<style>
+  :root {
+    --bg: #f2f2f2;
+    --card-bg: #ffffff;
+    --text-main: #1a1a1a;
+    --text-muted: #767676;
+    --blue: #1f3a5f;
+    --blue-dark: #16293f;
+    --green: #b7e4c7;
+    --yellow: #ffe8a3;
+    --red-bg: #fddede;
+    --red-text: #c0392b;
+    --tag-alta-bg: #fddede;
+    --tag-alta-text: #c0392b;
+    --tag-media-bg: #ffe8a3;
+    --tag-media-text: #8a6d00;
+    --tag-bajo-bg: #e6e6e6;
+    --tag-bajo-text: #555555;
+    --radius: 12px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    display: flex;
+    justify-content: center;
+    padding: 24px 12px;
+    min-height: 100vh;
+  }
+
+  .phone {
+    width: 100%;
+    max-width: 360px;
+    background: var(--card-bg);
+    border-radius: 28px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    overflow: hidden;
+    min-height: 640px;
+    position: relative;
+  }
+
+  .screen {
+    display: none;
+    padding: 24px 20px 28px;
+    animation: fadeIn 0.25s ease;
+  }
+
+  .screen.active {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ---------- Home ---------- */
+  .app-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 4px 0 2px;
+    color: var(--text-main);
+  }
+
+  .greeting {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+  }
+
+  .section-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 0.02em;
+    margin: 18px 0 8px;
+  }
+
+  .semaforo {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+
+  .dia-box {
+    flex: 1;
+    height: 40px;
+    border-radius: 8px;
+  }
+
+  .dia-labels {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+
+  .dia-labels span {
+    flex: 1;
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .alert-critica {
+    background: var(--red-bg);
+    color: var(--red-text);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    border: none;
+    width: 100%;
+    text-align: left;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+
+  .alert-critica:active {
+    transform: scale(0.98);
+  }
+
+  .alert-critica .titulo {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+
+  .alert-critica .sub {
+    font-size: 12.5px;
+    opacity: 0.9;
+  }
+
+  .tap-hint {
+    font-size: 11px;
+    color: var(--red-text);
+    opacity: 0.75;
+    margin-bottom: 4px;
+  }
+
+  .prioridad-card {
+    background: var(--card-bg);
+    border: 1px solid #ececec;
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .prioridad-info .titulo {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-main);
+  }
+
+  .prioridad-info .detalle {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .tag {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  .tag.alta { background: var(--tag-alta-bg); color: var(--tag-alta-text); }
+  .tag.media { background: var(--tag-media-bg); color: var(--tag-media-text); }
+  .tag.bajo { background: var(--tag-bajo-bg); color: var(--tag-bajo-text); }
+
+  .btn-primary {
+    width: 100%;
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 18px;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.12s ease;
+  }
+
+  .btn-primary:hover { background: var(--blue-dark); }
+  .btn-primary:active { transform: scale(0.98); }
+
+  /* ---------- Plan screen ---------- */
+  .top-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  .back-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--text-main);
+    padding: 4px 6px 4px 0;
+  }
+
+  .top-nav h2 {
+    font-size: 17px;
+    margin: 0;
+    color: var(--text-main);
+  }
+
+  .plan-sub {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    margin: 4px 0 18px;
+  }
+
+  .plan-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .plan-day {
+    width: 34px;
+    flex-shrink: 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    padding-top: 12px;
+  }
+
+  .plan-row.critico .plan-day {
+    color: var(--red-text);
+  }
+
+  .plan-card {
+    flex: 1;
+    background: #fafafa;
+    border: 1px solid #ececec;
+    border-radius: var(--radius);
+    padding: 12px 14px;
+  }
+
+  .plan-row.critico .plan-card {
+    background: var(--red-bg);
+    border-color: transparent;
+  }
+
+  .plan-card .titulo {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-main);
+  }
+
+  .plan-row.critico .plan-card .titulo {
+    color: var(--red-text);
+  }
+
+  .plan-card .detalle {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .plan-row.critico .plan-card .detalle {
+    color: var(--red-text);
+    opacity: 0.85;
+  }
+
+  .calendar-btn {
+    width: 100%;
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.15s ease, transform 0.12s ease;
+  }
+
+  .calendar-btn:hover { background: var(--blue-dark); }
+  .calendar-btn:active { transform: scale(0.98); }
+
+  /* ---------- v2: aviso anticipado ---------- */
+  .aviso-previo {
+    background: #eef3fa;
+    color: var(--blue);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    font-size: 12px;
+    margin-bottom: 8px;
+    line-height: 1.35;
+  }
+
+  /* ---------- v2: progreso ---------- */
+  .progreso { margin: 0 0 14px; }
+  .progreso .texto { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+  .progreso .barra { height: 6px; background: #ececec; border-radius: 6px; overflow: hidden; }
+  .progreso .relleno { height: 100%; width: 0%; background: #2e9e5b; transition: width 0.25s ease; }
+
+  /* ---------- v2: tarjeta editable / completable ---------- */
+  .card-top { display: flex; align-items: flex-start; gap: 10px; }
+  .card-text { flex: 1; }
+  .check { display: flex; align-items: center; padding-top: 2px; }
+  .check input { width: 18px; height: 18px; accent-color: #2e9e5b; cursor: pointer; margin: 0; }
+  .ajustar {
+    background: none; border: 1px solid #d9d9d9; border-radius: 20px;
+    font-size: 11px; color: var(--blue); padding: 4px 9px; cursor: pointer; white-space: nowrap;
+  }
+  .ajustar:hover { border-color: var(--blue); }
+  .plan-card.done { background: #e9f7ee; border-color: #cdebd8; }
+  .plan-card.done .titulo { text-decoration: line-through; color: #4a7c5c; }
+  .plan-card.done .detalle { color: #4a7c5c; }
+  .edit-box {
+    display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #e0e0e0;
+    gap: 8px; align-items: center; flex-wrap: wrap; font-size: 12px; color: var(--text-muted);
+  }
+  .edit-box.open { display: flex; }
+  .edit-box select, .edit-box input {
+    font-size: 12px; padding: 4px 6px; border: 1px solid #d9d9d9; border-radius: 6px; background: #fff;
+  }
+  .edit-box input { width: 56px; }
+  .edit-box .guardar {
+    background: var(--blue); color: #fff; border: none; border-radius: 6px; padding: 5px 10px;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+
+  /* ---------- v2: toast ---------- */
+  .toast {
+    position: absolute; left: 16px; right: 16px; bottom: 16px;
+    background: #1a1a1a; color: #fff; font-size: 13px; padding: 12px 14px;
+    border-radius: 10px; opacity: 0; transform: translateY(8px);
+    transition: opacity 0.2s ease, transform 0.2s ease; pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  .caption {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 14px;
+  }
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <!-- ===== PANTALLA 1: HOME ===== -->
+  <div class="screen active" id="screen-home">
+    <div class="app-title">Timón</div>
+    <div class="greeting">Hola, Estefany</div>
+
+    <div class="section-label">TU SEMANA</div>
+    <div class="semaforo">
+      <div class="dia-box" style="background: var(--green);"></div>
+      <div class="dia-box" style="background: var(--yellow);"></div>
+      <div class="dia-box" style="background: var(--yellow);"></div>
+      <div class="dia-box" style="background: #f7bcbc;"></div>
+      <div class="dia-box" style="background: #f7bcbc;"></div>
+      <div class="dia-box" style="background: var(--green);"></div>
+    </div>
+    <div class="dia-labels">
+      <span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span>
+    </div>
+
+    <div class="aviso-previo">🔔 Aviso enviado el lunes pasado: “La próxima semana tienes 3 entregas”. Ya puedes ver tu plan.</div>
+
+    <button class="alert-critica" onclick="goTo('screen-plan')">
+      <div class="titulo">Semana crítica detectada</div>
+      <div class="sub">3 entregas coinciden: jue-vie</div>
+      <div class="tap-hint">Toca aquí para ver tu plan →</div>
+    </button>
+
+    <div class="section-label">PRIORIDADES SUGERIDAS</div>
+
+    <div class="prioridad-card">
+      <div class="prioridad-info">
+        <div class="titulo">Examen parcial</div>
+        <div class="detalle">Estadística · Jue · 30%</div>
+      </div>
+      <span class="tag alta">alta</span>
+    </div>
+
+    <div class="prioridad-card">
+      <div class="prioridad-info">
+        <div class="titulo">Entrega grupal</div>
+        <div class="detalle">Marketing · Vie · 20%</div>
+      </div>
+      <span class="tag media">media</span>
+    </div>
+
+    <div class="prioridad-card">
+      <div class="prioridad-info">
+        <div class="titulo">Práctica calificada</div>
+        <div class="detalle">Lean Mgmt · Vie · 10%</div>
+      </div>
+      <span class="tag bajo">bajo</span>
+    </div>
+
+    <button class="btn-primary" onclick="goTo('screen-plan')">
+      Ver mi plan de estudio →
+    </button>
+  </div>
+
+  <!-- ===== PANTALLA 2: PLAN DE ESTUDIO ===== -->
+  <div class="screen" id="screen-plan">
+    <div class="top-nav">
+      <button class="back-btn" onclick="goTo('screen-home')">←</button>
+      <h2>Tu plan para esta semana</h2>
+    </div>
+    <div class="plan-sub">Generado a partir de tus 3 entregas pendientes · toca “Ajustar” para mover un bloque</div>
+
+    <div class="progreso">
+      <div class="texto" id="progreso-texto">0 de 5 bloques completados</div>
+      <div class="barra"><div class="relleno" id="progreso-barra"></div></div>
+    </div>
+
+    <div id="plan-lista">
+
+    <div class="plan-row" data-day="Lun">
+      <div class="plan-day">Lun</div>
+      <div class="plan-card">
+        <div class="card-top">
+          <label class="check"><input type="checkbox" onchange="toggleDone(this)"></label>
+          <div class="card-text">
+            <div class="titulo">Repasar Estadística</div>
+            <div class="detalle"><span class="horas">2 h</span> · antes del examen del jueves</div>
+          </div>
+          <button class="ajustar" onclick="toggleEdit(this)">Ajustar</button>
+        </div>
+        <div class="edit-box">
+          <label>Día <select class="sel-dia"><option>Lun</option><option>Mar</option><option>Mié</option><option>Jue</option><option>Vie</option></select></label>
+          <label>Horas <input class="in-horas" type="number" min="0.5" step="0.5" value="2"></label>
+          <button class="guardar" onclick="saveEdit(this)">Guardar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="plan-row" data-day="Mar">
+      <div class="plan-day">Mar</div>
+      <div class="plan-card">
+        <div class="card-top">
+          <label class="check"><input type="checkbox" onchange="toggleDone(this)"></label>
+          <div class="card-text">
+            <div class="titulo">Avanzar entrega Marketing</div>
+            <div class="detalle"><span class="horas">1.5 h</span> · trabajo grupal</div>
+          </div>
+          <button class="ajustar" onclick="toggleEdit(this)">Ajustar</button>
+        </div>
+        <div class="edit-box">
+          <label>Día <select class="sel-dia"><option>Lun</option><option selected>Mar</option><option>Mié</option><option>Jue</option><option>Vie</option></select></label>
+          <label>Horas <input class="in-horas" type="number" min="0.5" step="0.5" value="1.5"></label>
+          <button class="guardar" onclick="saveEdit(this)">Guardar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="plan-row" data-day="Mié">
+      <div class="plan-day">Mié</div>
+      <div class="plan-card">
+        <div class="card-top">
+          <label class="check"><input type="checkbox" onchange="toggleDone(this)"></label>
+          <div class="card-text">
+            <div class="titulo">Repaso final Estadística</div>
+            <div class="detalle"><span class="horas">1 h</span> · último repaso</div>
+          </div>
+          <button class="ajustar" onclick="toggleEdit(this)">Ajustar</button>
+        </div>
+        <div class="edit-box">
+          <label>Día <select class="sel-dia"><option>Lun</option><option>Mar</option><option selected>Mié</option><option>Jue</option><option>Vie</option></select></label>
+          <label>Horas <input class="in-horas" type="number" min="0.5" step="0.5" value="1"></label>
+          <button class="guardar" onclick="saveEdit(this)">Guardar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="plan-row" data-day="Mié">
+      <div class="plan-day">Mié</div>
+      <div class="plan-card">
+        <div class="card-top">
+          <label class="check"><input type="checkbox" onchange="toggleDone(this)"></label>
+          <div class="card-text">
+            <div class="titulo">Cerrar entrega Marketing</div>
+            <div class="detalle"><span class="horas">1 h</span> · revisar con el grupo</div>
+          </div>
+          <button class="ajustar" onclick="toggleEdit(this)">Ajustar</button>
+        </div>
+        <div class="edit-box">
+          <label>Día <select class="sel-dia"><option>Lun</option><option>Mar</option><option selected>Mié</option><option>Jue</option><option>Vie</option></select></label>
+          <label>Horas <input class="in-horas" type="number" min="0.5" step="0.5" value="1"></label>
+          <button class="guardar" onclick="saveEdit(this)">Guardar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="plan-row critico" data-day="Jue">
+      <div class="plan-day">Jue</div>
+      <div class="plan-card">
+        <div class="titulo">Examen Estadística</div>
+        <div class="detalle">Día del examen · 30% de la nota</div>
+      </div>
+    </div>
+
+    <div class="plan-row" data-day="Jue">
+      <div class="plan-day">Jue</div>
+      <div class="plan-card">
+        <div class="card-top">
+          <label class="check"><input type="checkbox" onchange="toggleDone(this)"></label>
+          <div class="card-text">
+            <div class="titulo">Preparar práctica Lean Mgmt</div>
+            <div class="detalle"><span class="horas">1 h</span> · por la tarde, después del examen</div>
+          </div>
+          <button class="ajustar" onclick="toggleEdit(this)">Ajustar</button>
+        </div>
+        <div class="edit-box">
+          <label>Día <select class="sel-dia"><option>Lun</option><option>Mar</option><option>Mié</option><option selected>Jue</option><option>Vie</option></select></label>
+          <label>Horas <input class="in-horas" type="number" min="0.5" step="0.5" value="1"></label>
+          <button class="guardar" onclick="saveEdit(this)">Guardar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="plan-row critico" data-day="Vie">
+      <div class="plan-day">Vie</div>
+      <div class="plan-card">
+        <div class="titulo">Entrega Marketing + Práctica Lean Mgmt</div>
+        <div class="detalle">Día de entrega · 20% y 10% de la nota</div>
+      </div>
+    </div>
+
+    </div>
+
+    <button class="calendar-btn" onclick="alert('Plan agregado a Google Calendar (simulado en este prototipo).')">
+      📅 Agregar a Google Calendar
+    </button>
+
+    <div class="caption">Prototipo v2 — Timón</div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+</div>
+
+<script>
+  var DIAS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie'];
+  var toastTimer = null;
+
+  function showToast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function() { t.classList.remove('show'); }, 2600);
+  }
+
+  function toggleEdit(btn) {
+    var box = btn.closest('.plan-card').querySelector('.edit-box');
+    box.classList.toggle('open');
+  }
+
+  function saveEdit(btn) {
+    var card = btn.closest('.plan-card');
+    var row = card.closest('.plan-row');
+    var dia = card.querySelector('.sel-dia').value;
+    var horas = parseFloat(card.querySelector('.in-horas').value) || 1;
+    row.dataset.day = dia;
+    row.querySelector('.plan-day').textContent = dia;
+    card.querySelector('.horas').textContent = horas + ' h';
+    card.querySelector('.edit-box').classList.remove('open');
+    ordenarPlan();
+    showToast('Bloque movido al ' + dia + ' (' + horas + ' h). El resto del plan no cambia.');
+  }
+
+  function ordenarPlan() {
+    var lista = document.getElementById('plan-lista');
+    var filas = Array.prototype.slice.call(lista.querySelectorAll('.plan-row'));
+    filas.sort(function(a, b) {
+      var d = DIAS.indexOf(a.dataset.day) - DIAS.indexOf(b.dataset.day);
+      if (d !== 0) return d;
+      return (a.classList.contains('critico') ? 0 : 1) - (b.classList.contains('critico') ? 0 : 1);
+    });
+    filas.forEach(function(f) { lista.appendChild(f); });
+  }
+
+  function toggleDone(chk) {
+    var card = chk.closest('.plan-card');
+    var row = card.closest('.plan-row');
+    card.classList.toggle('done', chk.checked);
+    var todos = document.querySelectorAll('#plan-lista input[type=checkbox]');
+    var hechos = document.querySelectorAll('#plan-lista input[type=checkbox]:checked');
+    document.getElementById('progreso-texto').textContent = hechos.length + ' de ' + todos.length + ' bloques completados';
+    document.getElementById('progreso-barra').style.width = Math.round(hechos.length / todos.length * 100) + '%';
+    if (!chk.checked) return;
+    if (hechos.length === todos.length) {
+      showToast('🎉 Completaste todo tu plan de la semana. Llegas al examen preparada.');
+      return;
+    }
+    var delDia = document.querySelectorAll('#plan-lista .plan-row[data-day="' + row.dataset.day + '"] input[type=checkbox]');
+    var delDiaHechos = document.querySelectorAll('#plan-lista .plan-row[data-day="' + row.dataset.day + '"] input[type=checkbox]:checked');
+    if (delDia.length === delDiaHechos.length) {
+      showToast('✅ Terminaste lo de hoy (' + row.dataset.day + '). Buen trabajo, tómate un descanso.');
+    } else {
+      showToast('Un bloque menos. Sigue así.');
+    }
+  }
+
+  function goTo(screenId) {
+    document.querySelectorAll('.screen').forEach(function(s) {
+      s.classList.remove('active');
+    });
+    document.getElementById(screenId).classList.add('active');
+  }
+</script>
+
+</body>
+</html>
